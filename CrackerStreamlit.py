@@ -89,7 +89,7 @@ with tab2:
                 result_placeholder.success(f"✅ Passwort gefunden: {pw} ({name})")
                 found = True
                 break
-            if i % 1000 == 0 or i == total_permutations - 1:
+            if i % 50000 == 0 or i == total_permutations - 1:
                 progress_bar.progress((i + 1) / total_permutations)
                 status.text(f"Teste Kombination {i + 1} von {total_permutations} ...")
         if not found:
