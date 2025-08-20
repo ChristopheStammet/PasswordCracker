@@ -113,8 +113,8 @@ with tab2:
                 break
 
             if i % STEPSIZE == 0 or i == total_permutations - 1:
-                progress_bar.progress((i + 1) / total_permutations)
-                status.text(f"Kombination {i + 1} von {total_permutations} wird getestet ...")
+                progress_bar.progress((i) / total_permutations)
+                status.text(f"Kombination {i} von {total_permutations} wird getestet ...")
 
         if not found and not st.session_state.stop_search:
             result_placeholder.info("Kein Passwort gefunden.")
