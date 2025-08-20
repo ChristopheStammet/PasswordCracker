@@ -52,6 +52,10 @@ def get_name_by_hash(d, hash_value):
 def generate_strings(chars, length):
     return ("".join(c) for c in itertools.product(chars, repeat=length))
 
+# Ensure stop signals are saved in session state
+if "stop_search" not in st.session_state:
+    st.session_state.stop_search = False
+
 # ------------------------------------------------------------------
 
 st.title("💻 Password Hacking Playground")
@@ -73,35 +77,46 @@ with tab1:
 
 with tab2:
     st.header("⚙️ Angriff Nummer 2: Bruteforce (nur Kleinbuchstaben)")
-    st.write(
-        "Hier werden alle Kombinationen von Kleinbuchstaben mit einer bestimmten Länge ausprobiert. "
-        "Achtung: Je länger das Passwort, desto mehr dauert die Suche!"
-    )
+    st.write("Teste alle Kombinationen von Kleinbuchstaben mit einer bestimmten Länge.")
+    
     testlength = st.slider("Passwortlänge auswählen", min_value=1, max_value=8, value=4)
-    run_bruteforce = st.button("Bruteforce starten")
+    start_btn = st.button("Bruteforce starten")
+    stop_btn = st.button("Suche stoppen")
 
-    if run_bruteforce:
+    if stop_btn:
+        st.session_state.stop_search = True
+    if start_btn:
+        st.session_state.stop_search = False
+
+    if start_btn or (st.session_state.stop_search == False and 'running' in st.session_state and st.session_state.running == True):
+        st.session_state.running = True
         charlist = list("abcdefghijklmnopqrstuvwxyz")
         total_permutations = len(charlist) ** testlength
         progress_bar = st.progress(0)
-        found = False
-
-        # Add status text and placeholder for result display
         status = st.empty()
         result_placeholder = st.empty()
+        found = False
+        
         for i, pw in enumerate(generate_strings(charlist, testlength)):
+            if st.session_state.stop_search:
+                status.warning("Suche wurde vom Benutzer gestoppt!")
+                break
+
             pw_hash = hash_password(pw)
-            if pw_hash in dataleak:
+            if pw_hash in dataleak_dict.values():
                 name = get_name_by_hash(dataleak_dict, pw_hash)
                 result_placeholder.success(f"✅ Passwort gefunden: {pw} ({name})")
                 found = True
                 break
-            if i % 50000 == 0 or i == total_permutations - 1:
+
+            if i % 1000 == 0 or i == total_permutations - 1:
                 progress_bar.progress((i + 1) / total_permutations)
-                status.text(f"Teste Kombination {i + 1} von {total_permutations} ...")
-        if not found:
-            result_placeholder.info("Kein Passwort aus der Datenbank gefunden.")
+                status.text(f"Kombination {i + 1} von {total_permutations} wird getestet ...")
+
+        if not found and not st.session_state.stop_search:
+            result_placeholder.info("Kein Passwort gefunden.")
         status.text("Bruteforce abgeschlossen.")
+        st.session_state.running = False
 
 with tab3:
     st.header("🔀 Angriff Nummer 3: Verschiedene Charaktere")
@@ -117,7 +132,7 @@ with tab3:
     picked_sets = st.multiselect(
         "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"]
     )
-    custom_chars = st.text_input("Zusätzliche Zeichen (optional)", value="")
+    custom_chars = st.text_input("Zusätzliche Zeichen (z.B. @$!)", value="")
     charlist = []
     for s in picked_sets:
         charlist.extend(char_options[s])
@@ -125,37 +140,49 @@ with tab3:
     charlist = list(set(charlist))
     tlength = st.slider("Passwortlänge", min_value=1, max_value=8, value=4, key="tab3len")
 
-    if st.button("Starten (Verschiedene Charaktere)"):
-        if not charlist:
-            st.error("Bitte mind. einen Zeichensatz auswählen oder eigene Zeichen angeben!")
-        else:
-            total_perm = len(charlist)**tlength
-            progress_bar = st.progress(0)
-            found = False
-            status = st.empty()
-            result_placeholder = st.empty()
-            for idx, pw in enumerate(generate_strings(charlist, tlength)):
-                pw_hash = hash_password(pw)
-                if pw_hash in dataleak:
-                    name = get_name_by_hash(dataleak_dict, pw_hash)
-                    result_placeholder.success(f"✅ Passwort gefunden: {pw} ({name})")
-                    found = True
-                    break
-                if idx % 1000 == 0 or idx == total_perm - 1:
-                    progress_bar.progress((idx + 1) / total_perm)
-                    status.text(f"Kombination {idx+1} von {total_perm} wird getestet ...")
-            if not found:
-                result_placeholder.info("Kein Passwort aus der Datenbank.")
-            status.text("Bruteforce abgeschlossen.")
+    start_btn_3 = st.button("Starten (Verschiedene Charaktere)")
+    stop_btn_3 = st.button("Suche stoppen (3)")
+
+    if stop_btn_3:
+        st.session_state.stop_search = True
+    if start_btn_3:
+        st.session_state.stop_search = False
+
+    if start_btn_3 or (not st.session_state.stop_search and 'running3' in st.session_state and st.session_state.running3):
+        st.session_state.running3 = True
+        total_perm = len(charlist) ** tlength
+        progress_bar = st.progress(0)
+        status = st.empty()
+        result_placeholder = st.empty()
+        found = False
+
+        for idx, pw in enumerate(generate_strings(charlist, tlength)):
+            if st.session_state.stop_search:
+                status.warning("Suche wurde vom Benutzer gestoppt!")
+                break
+
+            pw_hash = hash_password(pw)
+            if pw_hash in dataleak_dict.values():
+                name = get_name_by_hash(dataleak_dict, pw_hash)
+                result_placeholder.success(f"✅ Passwort gefunden: {pw} ({name})")
+                found = True
+                break
+            if idx % 1000 == 0 or idx == total_perm - 1:
+                progress_bar.progress((idx + 1) / total_perm)
+                status.text(f"Kombination {idx + 1} von {total_perm} wird getestet ...")
+
+        if not found and not st.session_state.stop_search:
+            result_placeholder.info("Kein Passwort aus der Datenbank.")
+        status.text("Bruteforce abgeschlossen.")
+        st.session_state.running3 = False
 
 with tab4:
     st.header("🎭 Angriff Nummer 4: Gezielte Veränderungen")
     st.write(
-        "Viele Passwörter werden mit typischen Ersetzungen variiert,\n"
-        "z.B. a→@, e→3, s→$ usw. Definiere Deine eigenen Ersetzungen unten "
-        "und lasse den Computer alle Möglichkeiten testen – natürlich mit Fortschrittsanzeige!"
+        "Definiere Ersetzungen (z.B. a→@, e→3) und lasse den Computer alle Varianten testen."
     )
 
+    import ast
     subs_input = st.text_area(
         "Substitutionsregeln (Python-Dictionary-Syntax, z.B.: {'a': ['a', '@'], 'e': ['e', '3']})",
         "{'a': ['a', '@', ''], 'e': ['e', '3', '']}"
@@ -167,42 +194,55 @@ with tab4:
         st.error(f"Fehler beim Parsen der Regeln: {e}")
         substitutions = {'a': ['a', '@', ''], 'e': ['e', '3', '']}
     
-    charlist = st.text_input(
+    charlist_text = st.text_input(
         "Verwendbare Zeichen für Grundwort (als durchgehender String)",
         value="abcdefghijklmnopqrstuvwxyz"
     )
     try:
-        basechars = list(charlist)
+        basechars = list(charlist_text)
         assert basechars, "Zeichenliste darf nicht leer sein."
     except:
         basechars = list("abcdefghijklmnopqrstuvwxyz")
-    tlength = st.slider("Passwortlänge", min_value=1, max_value=6, value=4, key="tab4len")
 
-    if st.button("Varianten-Test starten"):
-        total_base = len(basechars)**tlength
+    tlength_subs = st.slider("Passwortlänge", min_value=1, max_value=6, value=4, key="tab4len")
+
+    start_btn_4 = st.button("Varianten-Test starten")
+    stop_btn_4 = st.button("Suche stoppen (4)")
+
+    if stop_btn_4:
+        st.session_state.stop_search = True
+    if start_btn_4:
+        st.session_state.stop_search = False
+
+    if start_btn_4 or (not st.session_state.stop_search and 'running4' in st.session_state and st.session_state.running4):
+        st.session_state.running4 = True
+        total_base = len(basechars) ** tlength_subs
         progress_bar = st.progress(0)
         status = st.empty()
         result_placeholder = st.empty()
-        checked = 0
         found = False
-        for idx, base_word in enumerate(generate_strings(basechars, tlength)):
-            found_this_round = False
-            variant_count = 0
+        checked = 0
+
+        for idx, base_word in enumerate(generate_strings(basechars, tlength_subs)):
+            if st.session_state.stop_search:
+                status.warning("Suche wurde vom Benutzer gestoppt!")
+                break
+
             for variant in apply_substitutions(base_word, substitutions):
                 checked += 1
-                variant_count += 1
                 pw_hash = hash_password(variant)
-                if pw_hash in dataleak:
+                if pw_hash in dataleak_dict.values():
                     name = get_name_by_hash(dataleak_dict, pw_hash)
                     result_placeholder.success(f"✅ Passwort gefunden: {variant} ({name})")
                     found = True
-                    found_this_round = True
                     break
+            if found:
+                break
             if idx % 100 == 0 or idx == total_base - 1:
                 progress_bar.progress((idx + 1) / total_base)
-                status.text(f"Wort {idx+1} von {total_base} ({checked} Varianten gesamt geprüft...)")
-            if found_this_round:
-                break
-        if not found:
+                status.text(f"Wort {idx + 1} von {total_base} getestet ({checked} Varianten gesamt) ...")
+
+        if not found and not st.session_state.stop_search:
             result_placeholder.info("Kein Passwort mit Ersetzungen gefunden.")
         status.text("Fertig.")
+        st.session_state.running4 = False
