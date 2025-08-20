@@ -230,7 +230,7 @@ with tab4:
     tlength_subs = st.slider("Passwortlänge", min_value=1, max_value=6, value=4, key="tab4len")
 
     start_btn_4 = st.button("Varianten-Test starten")
-    stop_btn_4 = st.button("Suche stoppen (4)")
+    stop_btn_4 = st.button("Suche stoppen.")
 
     if stop_btn_4:
         st.session_state.stop_search = True
@@ -261,7 +261,7 @@ with tab4:
                     break
             if found:
                 break
-            if idx % 100 == 0 or idx == total_base - 1:
+            if idx % STEPSIZE == 0 or idx == total_base - 1:
                 progress_bar.progress((idx) / total_base)
                 status.text(f"Wort {idx} von {total_base} getestet ({checked} Varianten gesamt) ...")
 
