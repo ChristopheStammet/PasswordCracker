@@ -135,7 +135,7 @@ with tab3:
     picked_sets = st.multiselect(
     "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"], key="charsets_tab3"
     )
-    custom_chars = st.text_input("Zusätzliche Zeichen (z.B. @$!)", value="", key="custom_chars_tab3")
+    custom_chars = st.text_input("Zusätzliche Zeichen (z.B. @$!) ohne Leerzeichen und Komma hier eintragen", value="", key="custom_chars_tab3")
     charlist = []
     for s in picked_sets:
         charlist.extend(char_options[s])
@@ -144,7 +144,7 @@ with tab3:
     tlength = st.slider("Passwortlänge", min_value=1, max_value=8, value=4, key="tab3len")
 
     start_btn_3 = st.button("Starten (Verschiedene Charaktere)")
-    stop_btn_3 = st.button("Suche stoppen (3)")
+    stop_btn_3 = st.button("Suche stoppen")
 
     if stop_btn_3:
         st.session_state.stop_search = True
@@ -171,8 +171,8 @@ with tab3:
                 found = True
                 break
             if idx % STEPSIZE == 0 or idx == total_perm - 1:
-                progress_bar.progress((idx + 1) / total_perm)
-                status.text(f"Kombination {idx + 1} von {total_perm} wird getestet ...")
+                progress_bar.progress((idx) / total_perm)
+                status.text(f"Kombination {idx} von {total_perm} wird getestet ...")
 
         if not found and not st.session_state.stop_search:
             result_placeholder.info("Kein Passwort aus der Datenbank.")
@@ -262,8 +262,8 @@ with tab4:
             if found:
                 break
             if idx % 100 == 0 or idx == total_base - 1:
-                progress_bar.progress((idx + 1) / total_base)
-                status.text(f"Wort {idx + 1} von {total_base} getestet ({checked} Varianten gesamt) ...")
+                progress_bar.progress((idx) / total_base)
+                status.text(f"Wort {idx} von {total_base} getestet ({checked} Varianten gesamt) ...")
 
         if not found and not st.session_state.stop_search:
             result_placeholder.info("Kein Passwort mit Ersetzungen gefunden.")
