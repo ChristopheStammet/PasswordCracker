@@ -180,33 +180,53 @@ with tab3:
         st.session_state.running3 = False
 
 with tab4:
-    st.header("🎭 Angriff Nummer 4: Gezielte Veränderungen")
+    st.header("🎭 Angriff Nummer 4: Gezielte Veränderungen (einfachere Eingabe)")
     st.write(
-        "Definiere Ersetzungen (z.B. a→@, e→3) und lasse den Computer alle Varianten testen."
+        "Definiere Ersetzungen zeilenweise in der Form Zeichen:Ersetzung1,Ersetzung2,...\n"
+        "Beispiel:\n"
+        "`a:@,3`\n"
+        "`e:e,3`\n"
+        "Verwende die Zeichensätze unten zur Auswahl des Grundwortes."
     )
 
-    import ast
-    subs_input = st.text_area(
-        "Substitutionsregeln (Python-Dictionary-Syntax, z.B.: {'a': ['a', '@'], 'e': ['e', '3']})",
-        "{'a': ['a', '@', ''], 'e': ['e', '3', '']}"
+    # Simplified substitution input: multi-line text box
+    subs_simple = st.text_area(
+        "Substitutionsregeln (einfaches Format, z.B. a:@,3 pro Zeile):",
+        value="a:@,3\ns:$\ne:3"
     )
-    try:
-        substitutions = ast.literal_eval(subs_input)
-        assert isinstance(substitutions, dict), "Muss ein Dictionary sein."
-    except Exception as e:
-        st.error(f"Fehler beim Parsen der Regeln: {e}")
-        substitutions = {'a': ['a', '@', ''], 'e': ['e', '3', '']}
-    
-    charlist_text = st.text_input(
-        "Verwendbare Zeichen für Grundwort (als durchgehender String)",
-        value="abcdefghijklmnopqrstuvwxyz"
-    )
-    try:
-        basechars = list(charlist_text)
-        assert basechars, "Zeichenliste darf nicht leer sein."
-    except:
-        basechars = list("abcdefghijklmnopqrstuvwxyz")
 
+    # Parse the simple input into substitutions dict
+    substitutions = {}
+    for line in subs_simple.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        if ":" not in line:
+            st.warning(f"Zeile ignoriert (kein ':'): {line}")
+            continue
+        key, vals = line.split(":", 1)
+        key = key.strip()
+        vals_list = [v.strip() for v in vals.split(",") if v.strip()]
+        # Include the original character as valid substitution by default
+        if key not in vals_list:
+            vals_list.insert(0, key)
+        substitutions[key] = vals_list
+
+    # Character sets for base word (copied from tab3)
+    char_options = {
+        "Kleinbuchstaben": list("abcdefghijklmnopqrstuvwxyz"),
+        "Großbuchstaben": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
+        "Zahlen": [str(i) for i in range(10)],
+    }
+    picked_sets = st.multiselect(
+        "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"]
+    )
+    custom_chars = st.text_input("Zusätzliche Zeichen (z.B. @$!)", value="")
+    base_chars = []
+    for s in picked_sets:
+        base_chars.extend(char_options[s])
+    base_chars.extend(list(custom_chars))
+    base_chars = list(set(base_chars))
     tlength_subs = st.slider("Passwortlänge", min_value=1, max_value=6, value=4, key="tab4len")
 
     start_btn_4 = st.button("Varianten-Test starten")
@@ -219,14 +239,14 @@ with tab4:
 
     if start_btn_4 or (not st.session_state.stop_search and 'running4' in st.session_state and st.session_state.running4):
         st.session_state.running4 = True
-        total_base = len(basechars) ** tlength_subs
+        total_base = len(base_chars) ** tlength_subs
         progress_bar = st.progress(0)
         status = st.empty()
         result_placeholder = st.empty()
         found = False
         checked = 0
 
-        for idx, base_word in enumerate(generate_strings(basechars, tlength_subs)):
+        for idx, base_word in enumerate(generate_strings(base_chars, tlength_subs)):
             if st.session_state.stop_search:
                 status.warning("Suche wurde vom Benutzer gestoppt!")
                 break
@@ -241,7 +261,7 @@ with tab4:
                     break
             if found:
                 break
-            if idx % STEPSIZE == 0 or idx == total_base - 1:
+            if idx % 100 == 0 or idx == total_base - 1:
                 progress_bar.progress((idx + 1) / total_base)
                 status.text(f"Wort {idx + 1} von {total_base} getestet ({checked} Varianten gesamt) ...")
 
