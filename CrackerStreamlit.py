@@ -68,26 +68,33 @@ with tab2:
     st.header("⚙️ Angriff Nummer 2: Bruteforce (nur Kleinbuchstaben)")
     st.write(
         "Hier werden alle Kombinationen von Kleinbuchstaben mit einer bestimmten Länge ausprobiert. "
-        "Achtung: Lange Passwörter brauchen sehr lange!"
+        "Achtung: Je länger das Passwort, desto mehr dauert die Suche!"
     )
     testlength = st.slider("Passwortlänge auswählen", min_value=1, max_value=8, value=4)
-    if st.button("Bruteforce starten"):
+    run_bruteforce = st.button("Bruteforce starten")
+
+    if run_bruteforce:
         charlist = list("abcdefghijklmnopqrstuvwxyz")
-        max_attempts = 500_000  # Limit for safety
+        total_permutations = len(charlist) ** testlength
+        progress_bar = st.progress(0)
         found = False
-        with st.spinner("Bruteforce läuft... (abgebrochen nach zu vielen Versuchen!)"):
-            for idx, pw in enumerate(generate_strings(charlist, testlength)):
-                if idx > max_attempts:
-                    st.warning("Zu viele Kombinationen! Vorgang abgebrochen.")
-                    break
-                pw_hash = hash_password(pw)
-                if pw_hash in dataleak:
-                    name = get_name_by_hash(dataleak_dict, pw_hash)
-                    st.success(f"✅ Passwort gefunden: {pw} ({name})")
-                    found = True
-                    break
+
+        # Add status text and placeholder for result display
+        status = st.empty()
+        result_placeholder = st.empty()
+        for i, pw in enumerate(generate_strings(charlist, testlength)):
+            pw_hash = hash_password(pw)
+            if pw_hash in dataleak:
+                name = get_name_by_hash(dataleak_dict, pw_hash)
+                result_placeholder.success(f"✅ Passwort gefunden: {pw} ({name})")
+                found = True
+                break
+            if i % 1000 == 0 or i == total_permutations - 1:
+                progress_bar.progress((i + 1) / total_permutations)
+                status.text(f"Teste Kombination {i + 1} von {total_permutations} ...")
         if not found:
-            st.info("Kein Passwort gefunden (entweder nicht in der Liste oder zu viele Kombinationen).")
+            result_placeholder.info("Kein Passwort aus der Datenbank gefunden.")
+        status.text("Bruteforce abgeschlossen.")
 
 with tab3:
     st.header("🔀 Angriff Nummer 3: Verschiedene Charaktere")
