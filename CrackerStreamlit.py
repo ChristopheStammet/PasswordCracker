@@ -56,7 +56,7 @@ def generate_strings(chars, length):
 
 st.title("💻 Password Hacking Playground")
 
-tab1, tab2, tab3 = st.tabs(["1. Einfach probieren", "2. Bruteforce", "3. Verschiedene Charaktere"])
+tab1, tab2, tab3, tab4 = st.tabs(["1. Einfach probieren", "2. Bruteforce", "3. Verschiedene Charaktere", "4. Einfaches Ersetzen"])
 
 with tab1:
     st.header("🔑 Angriff Nummer 1: Direkt probieren")
