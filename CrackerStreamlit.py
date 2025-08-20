@@ -133,7 +133,7 @@ with tab3:
         "Zahlen": [str(i) for i in range(10)],
     }
     picked_sets = st.multiselect(
-        "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"]
+    "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"], key="charsets_tab3"
     )
     custom_chars = st.text_input("Zusätzliche Zeichen (z.B. @$!)", value="")
     charlist = []
@@ -219,7 +219,7 @@ with tab4:
         "Zahlen": [str(i) for i in range(10)],
     }
     picked_sets = st.multiselect(
-        "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"]
+    "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"], key="charsets_tab4"
     )
     custom_chars = st.text_input("Zusätzliche Zeichen (z.B. @$!)", value="")
     base_chars = []
