@@ -1,6 +1,13 @@
 import streamlit as st
 import hashlib
 import itertools
+import ast
+
+def apply_substitutions(word, subs):
+    # Generate all variants for a word by substituting each character
+    lists_of_chars = [subs.get(c, [c]) for c in word]
+    for variant_tuple in itertools.product(*lists_of_chars):
+        yield "".join(variant_tuple)
 
 # ------------ DATA: Imported once, not shown to pupils -------------
 dataleak_dict = {
@@ -55,7 +62,7 @@ with tab1:
     st.header("🔑 Angriff Nummer 1: Direkt probieren")
     st.write("Viele Benutzer*innen nutzen sehr einfache Passwörter. Probiere ein Passwort aus:")
 
-    test_password = st.text_input("Gib dein Passwort ein", value="dqede")
+    test_password = st.text_input("Gib ein Passwort ein, um es im Satensatz zu suchen", value="test")
     if st.button("Checken"):
         pw_hash = hash_password(test_password)
         if pw_hash in dataleak:
@@ -99,8 +106,8 @@ with tab2:
 with tab3:
     st.header("🔀 Angriff Nummer 3: Verschiedene Charaktere")
     st.write(
-        "Hier kannst du selbst auswählen, welche Zeichen zur Passwortgenerierung benutzt werden "
-        "(z.B. Großbuchstaben, Zahlen, Sonderzeichen)."
+        "Wähle Zeichensätze und experimentiere mit verschiedenen Passwortlängen. "
+        "Erlebe, wie der Suchraum explodiert – und sehe die Fortschrittsanzeige live..."
     )
     char_options = {
         "Kleinbuchstaben": list("abcdefghijklmnopqrstuvwxyz"),
@@ -115,26 +122,87 @@ with tab3:
     for s in picked_sets:
         charlist.extend(char_options[s])
     charlist.extend(list(custom_chars))
-    charlist = list(set(charlist))  # Remove duplicates
-
+    charlist = list(set(charlist))
     tlength = st.slider("Passwortlänge", min_value=1, max_value=8, value=4, key="tab3len")
 
     if st.button("Starten (Verschiedene Charaktere)"):
         if not charlist:
             st.error("Bitte mind. einen Zeichensatz auswählen oder eigene Zeichen angeben!")
         else:
-            limit = 500_000
+            total_perm = len(charlist)**tlength
+            progress_bar = st.progress(0)
             found = False
-            with st.spinner("Bruteforce läuft... (abgebrochen nach zu vielen Versuchen!)"):
-                for idx, pw in enumerate(generate_strings(charlist, tlength)):
-                    if idx > limit:
-                        st.warning("Zu viele Kombinationen! Vorgang abgebrochen.")
-                        break
-                    pw_hash = hash_password(pw)
-                    if pw_hash in dataleak:
-                        name = get_name_by_hash(dataleak_dict, pw_hash)
-                        st.success(f"✅ Passwort gefunden: {pw} ({name})")
-                        found = True
-                        break
+            status = st.empty()
+            result_placeholder = st.empty()
+            for idx, pw in enumerate(generate_strings(charlist, tlength)):
+                pw_hash = hash_password(pw)
+                if pw_hash in dataleak:
+                    name = get_name_by_hash(dataleak_dict, pw_hash)
+                    result_placeholder.success(f"✅ Passwort gefunden: {pw} ({name})")
+                    found = True
+                    break
+                if idx % 1000 == 0 or idx == total_perm - 1:
+                    progress_bar.progress((idx + 1) / total_perm)
+                    status.text(f"Kombination {idx+1} von {total_perm} wird getestet ...")
             if not found:
-                st.info("Kein Passwort gefunden (entweder nicht in der Liste oder zu viele Kombinationen).")
+                result_placeholder.info("Kein Passwort aus der Datenbank.")
+            status.text("Bruteforce abgeschlossen.")
+
+with tab4:
+    st.header("🎭 Angriff Nummer 4: Gezielte Veränderungen")
+    st.write(
+        "Viele Passwörter werden mit typischen Ersetzungen variiert,\n"
+        "z.B. a→@, e→3, s→$ usw. Definiere Deine eigenen Ersetzungen unten "
+        "und lasse den Computer alle Möglichkeiten testen – natürlich mit Fortschrittsanzeige!"
+    )
+
+    subs_input = st.text_area(
+        "Substitutionsregeln (Python-Dictionary-Syntax, z.B.: {'a': ['a', '@'], 'e': ['e', '3']})",
+        "{'a': ['a', '@', ''], 'e': ['e', '3', '']}"
+    )
+    try:
+        substitutions = ast.literal_eval(subs_input)
+        assert isinstance(substitutions, dict), "Muss ein Dictionary sein."
+    except Exception as e:
+        st.error(f"Fehler beim Parsen der Regeln: {e}")
+        substitutions = {'a': ['a', '@', ''], 'e': ['e', '3', '']}
+    
+    charlist = st.text_input(
+        "Verwendbare Zeichen für Grundwort (als durchgehender String)",
+        value="abcdefghijklmnopqrstuvwxyz"
+    )
+    try:
+        basechars = list(charlist)
+        assert basechars, "Zeichenliste darf nicht leer sein."
+    except:
+        basechars = list("abcdefghijklmnopqrstuvwxyz")
+    tlength = st.slider("Passwortlänge", min_value=1, max_value=6, value=4, key="tab4len")
+
+    if st.button("Varianten-Test starten"):
+        total_base = len(basechars)**tlength
+        progress_bar = st.progress(0)
+        status = st.empty()
+        result_placeholder = st.empty()
+        checked = 0
+        found = False
+        for idx, base_word in enumerate(generate_strings(basechars, tlength)):
+            found_this_round = False
+            variant_count = 0
+            for variant in apply_substitutions(base_word, substitutions):
+                checked += 1
+                variant_count += 1
+                pw_hash = hash_password(variant)
+                if pw_hash in dataleak:
+                    name = get_name_by_hash(dataleak_dict, pw_hash)
+                    result_placeholder.success(f"✅ Passwort gefunden: {variant} ({name})")
+                    found = True
+                    found_this_round = True
+                    break
+            if idx % 100 == 0 or idx == total_base - 1:
+                progress_bar.progress((idx + 1) / total_base)
+                status.text(f"Wort {idx+1} von {total_base} ({checked} Varianten gesamt geprüft...)")
+            if found_this_round:
+                break
+        if not found:
+            result_placeholder.info("Kein Passwort mit Ersetzungen gefunden.")
+        status.text("Fertig.")
