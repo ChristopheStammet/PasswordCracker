@@ -109,7 +109,7 @@ with tab2:
                 found = True
                 break
 
-            if i % 1000 == 0 or i == total_permutations - 1:
+            if i % 250000 == 0 or i == total_permutations - 1:
                 progress_bar.progress((i + 1) / total_permutations)
                 status.text(f"Kombination {i + 1} von {total_permutations} wird getestet ...")
 
@@ -167,7 +167,7 @@ with tab3:
                 result_placeholder.success(f"✅ Passwort gefunden: {pw} ({name})")
                 found = True
                 break
-            if idx % 1000 == 0 or idx == total_perm - 1:
+            if idx % 250000 == 0 or idx == total_perm - 1:
                 progress_bar.progress((idx + 1) / total_perm)
                 status.text(f"Kombination {idx + 1} von {total_perm} wird getestet ...")
 
@@ -238,7 +238,7 @@ with tab4:
                     break
             if found:
                 break
-            if idx % 100 == 0 or idx == total_base - 1:
+            if idx % 25000 == 0 or idx == total_base - 1:
                 progress_bar.progress((idx + 1) / total_base)
                 status.text(f"Wort {idx + 1} von {total_base} getestet ({checked} Varianten gesamt) ...")
 
