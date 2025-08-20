@@ -144,7 +144,7 @@ with tab3:
     tlength = st.slider("Passwortlänge", min_value=1, max_value=8, value=4, key="tab3len")
 
     start_btn_3 = st.button("Starten (Verschiedene Charaktere)")
-    stop_btn_3 = st.button("Suche stoppen")
+    stop_btn_3 = st.button("Suche stoppen!")
 
     if stop_btn_3:
         st.session_state.stop_search = True
