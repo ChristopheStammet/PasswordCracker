@@ -114,7 +114,7 @@ with tab2:
 
             if i % STEPSIZE == 0 or i == total_permutations - 1:
                 progress_bar.progress((i) / total_permutations)
-                status.text(f"Kombination {i} von {total_permutations} wird getestet ...")
+                status.text(f"Kombination {i} von {total_permutations} ({i/total_permutations}%) wird getestet ...")
 
         if not found and not st.session_state.stop_search:
             result_placeholder.info("Kein Passwort gefunden.")
@@ -172,7 +172,7 @@ with tab3:
                 break
             if idx % STEPSIZE == 0 or idx == total_perm - 1:
                 progress_bar.progress((idx) / total_perm)
-                status.text(f"Kombination {idx} von {total_perm} wird getestet ...")
+                status.text(f"Kombination {idx} von {total_perm} ({idx/total_perm}%) wird getestet ...")
 
         if not found and not st.session_state.stop_search:
             result_placeholder.info("Kein Passwort aus der Datenbank.")
