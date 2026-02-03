@@ -11,33 +11,33 @@ def apply_substitutions(word, subs):
 
 # ------------ DATA: Imported once, not shown to pupils -------------
 dataleak_dict = {
-    "Alex": "83878c91171338902e0fe0fb97a8c47a",
-    "Béatrice": "45c48cce2e2d7fbdea1afc51c7c6ad26",
-    "Christophe": "2b9ed9314c9b75f085fcf7356337d30b",
-    "Daniela": "5f4dcc3b5aa765d61d8327deb882cf99",
-    "Elisabeth": "a384b6463fc216a5f8ecb6670f86456a",
-    "Fernanda": "25d55ad283aa400af464c76d713c07ad",
-    "Gilles": "5d793fc5b00a2348c3fb9ab59e5ca98a",
-    "Hannah": "afdd0b4ad2ec172c586e2150770fbf9e",
-    "Ilsa": "e7e06aff0e583c24313d7e96085aefa2",
-    "Jhempi": "b850780bb2b06e0cf81afb7a2efebb1a",
-    "Klara": "4fc963e213bba362778f5c175eb4d5ff",
-    "Louis": "7f320b406a0956586fcc21c9f18e9180",
-    "Maren": "41e4652a622b10077ff4c22717dc57fd",
-    "Nico": "5de2bcf647b707104e4513262903866c",
-    "Olivia": "a996822761d1ed5066d2a208d549442b",
-    "Pedro": "8acef4050a09ce337a04186afd44ed33",
-    "Quentin": "195f19b835efe9f0b7b4e276ef1a8515",
-    "Robert": "48e6c9d963b4ec1c7507c505d577a6ad",
-    "Svenja": "b365a69719188e80fdd9183e1f3f42cd",
-    "Tom": "f1174e62d60a92010c4a72fe87805ae1",
-    "Ulrike": "2caa178076a628d0958fee0eab337176",
-    "Victor": "4de8e33e649c6ee317c7937804b63fc1",
-    "Wilhelmina": "c5efd020ac6cb5ab5542c54c91cb45ea",
-    "Xenia": "38b77d171bec2ddcadcbf434355b4184",
-    "Yves": "5833fe44252e19198cb9310b3f54eaf2",
-    "Zelda": "8327d03221693ccea6df43e600008383"
-}
+        "Alex": "a08372b70196c21a9229cf04db6b7ceb",
+        "Béatrice": "8fe4c11451281c094a6578e6ddbf5eed",
+        "Christophe": "2b9ed9314c9b75f085fcf7356337d30b",
+        "Daniela": "6c96314949a6b7cd3635c4ea904bb7d0",
+        "Elisabeth": "a384b6463fc216a5f8ecb6670f86456a",
+        "Fernanda": "25d55ad283aa400af464c76d713c07ad",
+        "Gilles": "5d793fc5b00a2348c3fb9ab59e5ca98a",
+        "Hannah": "846519378c9dedfaadf6c21bbebf1f4c",
+        "Ilsa": "735b90b4568125ed6c3f678819b6e058",
+        "Jhempi": "5993d7a73d9f9a694e411ba0788cfe2d",
+        "Klara": "4fc963e213bba362778f5c175eb4d5ff",
+        "Louis": "7f320b406a0956586fcc21c9f18e9180",
+        "Maren": "c2f3f489a00553e7a01d369c103c7251",
+        "Nico": "5f4dcc3b5aa765d61d8327deb882cf99",
+        "Olivia": "bfa08887053e473ace6f22633348634e",
+        "Pedro": "8acef4050a09ce337a04186afd44ed33",
+        "Quentin": "1a36591bceec49c832079e270d7e8b73",
+        "Robert": "48e6c9d963b4ec1c7507c505d577a6ad",
+        "Svenja": "0aed5d740d7fab4201e885019a36eace",
+        "Tom": "f1174e62d60a92010c4a72fe87805ae1",
+        "Ulrike": "244e457150727f77a5f07ca17969382f",
+        "Victor": "4de8e33e649c6ee317c7937804b63fc1",
+        "Wilhelmina": "9dd4e461268c8034f5c8564e155c67a6",
+        "Xenia": "38b77d171bec2ddcadcbf434355b4184",
+        "Yves": "06a82af8f6f22be62676d5ff0a4de161",
+        "Zelda": "c4657b50cfed11e0005ec752fa01a651"
+        }
 dataleak = list(dataleak_dict.values())
 
 def hash_password(input_string):
@@ -67,7 +67,7 @@ tab1, tab2, tab3, tab4 = st.tabs(["1. Einfach probieren", "2. Bruteforce", "3. V
 
 with tab1:
     st.header("🔑 Angriff Nummer 1: Direkt probieren")
-    st.write("Viele Benutzer*innen nutzen sehr einfache Passwörter. Probiere ein Passwort aus:")
+    st.write("Viele Benutzer*innen nutzen sehr einfache Passwörter, z.B. ihren Namen. Probiere ein Passwort aus:")
 
     test_password = st.text_input("Gib ein Passwort ein, um es im Satensatz zu suchen", value="test")
     if st.button("Checken"):
@@ -123,13 +123,14 @@ with tab2:
 with tab3:
     st.header("🔀 Angriff Nummer 3: Verschiedene Charaktere")
     st.write(
-        "Wähle Zeichensätze und experimentiere mit verschiedenen Passwortlängen. "
+        "Wähle Zeichensätze (zB nur Vokale) und experimentiere mit verschiedenen Passwortlängen. "
         "Erlebe, wie der Suchraum explodiert – und sehe die Fortschrittsanzeige live..."
     )
     char_options = {
         "Kleinbuchstaben": list("abcdefghijklmnopqrstuvwxyz"),
         "Großbuchstaben": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
         "Zahlen": [str(i) for i in range(10)],
+        "Nur einige Buchstaben": list("bla"),
     }
     picked_sets = st.multiselect(
     "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"], key="charsets_tab3"
@@ -140,7 +141,7 @@ with tab3:
         charlist.extend(char_options[s])
     charlist.extend(list(custom_chars))
     charlist = list(set(charlist))
-    tlength = st.slider("Passwortlänge", min_value=1, max_value=8, value=4, key="tab3len")
+    tlength = st.slider("Passwortlänge", min_value=1, max_value=12, value=4, key="tab3len")
 
     start_btn_3 = st.button("Starten (Verschiedene Charaktere)")
     stop_btn_3 = st.button("Suche stoppen!")
@@ -185,7 +186,7 @@ with tab4:
         "Beispiel:\n"
         "`a:@,3`\n"
         "`e:e,3`\n"
-        "Verwende die Zeichensätze unten zur Auswahl des Grundwortes."
+        "Verwende die Zeichensätze unten zur Auswahl des Grundwortes. Oft wird z.B. auch ein s durch einen $ ersetzt."
     )
 
     # Simplified substitution input: multi-line text box
