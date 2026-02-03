@@ -130,18 +130,17 @@ with tab3:
         "Kleinbuchstaben": list("abcdefghijklmnopqrstuvwxyz"),
         "Großbuchstaben": list("ABCDEFGHIJKLMNOPQRSTUVWXYZ"),
         "Zahlen": [str(i) for i in range(10)],
-        "Nur einige Buchstaben": list("bla"),
     }
     picked_sets = st.multiselect(
     "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"], key="charsets_tab3"
     )
-    custom_chars = st.text_input("Zusätzliche Zeichen (z.B. @$!) ohne Leerzeichen und Komma hier eintragen", value="", key="custom_chars_tab3")
+    custom_chars = st.text_input("Zusätzliche Zeichen (z.B. @$!) ohne Leerzeichen und Komma hier eintragen", value="bla", key="custom_chars_tab3")
     charlist = []
     for s in picked_sets:
         charlist.extend(char_options[s])
     charlist.extend(list(custom_chars))
     charlist = list(set(charlist))
-    tlength = st.slider("Passwortlänge", min_value=1, max_value=12, value=4, key="tab3len")
+    tlength = st.slider("Passwortlänge", min_value=1, max_value=12, value=12, key="tab3len")
 
     start_btn_3 = st.button("Starten (Verschiedene Charaktere)")
     stop_btn_3 = st.button("Suche stoppen!")
