@@ -132,7 +132,7 @@ with tab3:
         "Zahlen": [str(i) for i in range(10)],
     }
     picked_sets = st.multiselect(
-    "Zeichensätze auswählen", list(char_options.keys()), default=["Kleinbuchstaben"], key="charsets_tab3"
+    "Zeichensätze auswählen", list(char_options.keys()), default=[], key="charsets_tab3"
     )
     custom_chars = st.text_input("Zusätzliche Zeichen (z.B. @$!) ohne Leerzeichen und Komma hier eintragen", value="bla", key="custom_chars_tab3")
     charlist = []
